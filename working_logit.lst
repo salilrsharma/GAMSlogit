@@ -1,0 +1,219 @@
+GAMS 27.3.0  r58c491d Released Jul  4, 2019 WEX-WEI x86 64bit/MS Windows 07/16/19 15:03:50 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  *Read excel file
+   3   
+   4  set     n(*)                Index of data in the model,
+   5          t(*)                Index of observations;
+   6   
+   7  parameter  data1(t,*)        Source data,
+   8             data2(t,*)        Source data,
+   9             choice(t,*);
+  10   
+  11  *Load data from GDX
+GDXIN   D:\salilsharma\My Documents\gamsdir\projdir\test.gdx
+  13  *$gdxin in.gdx
+--- LOAD  t = 1:data1
+--- LOAD  n = 1:data1
+--- LOAD  data1 = 1:data1
+--- LOAD  data2 = 2:data2
+--- LOAD  choice = 3:choice
+  18   
+  19  parameter       y1(t)         Choice 1 is selected,
+  20                  y2(t)         Choice 2 is selected;
+  21   
+  22  *        Dependent variable, active credit accounts only
+  23  y1(t) = 0;
+  24  y2(t) = 0;
+  25   
+  26  *Positive if second alternative is chosen
+  27  y1(t) = 1$(choice(t,"CHOICE")=1);
+  28  y2(t) = 1$(choice(t,"CHOICE")=2);
+  29   
+  30  *display y1, y2;
+  31   
+  32  *        Loglikelihood maximization
+  33  variable        BETA(n)           Coefficients to be estimated,
+  34                  LOGLIK            Loglikelihood;
+  35   
+  36  Binary Variable r1(t), r2(t);
+  37   
+  38  equations        obj               Objective for a unrestricted model,
+  39                   route(t)          Route choice for an observation t;
+  40   
+  41  route(t)..   r1(t)+r2(t) =e= 1;
+  42   
+  43  obj..       LOGLIK =e= sum(t, y1(t)*log(exp(sum(n, data1(t,n)*BETA(n)))/(e
+      xp(sum(n, data1(t,n)*BETA(n))) +
+  44                         exp(sum(n, data2(t,n)*BETA(n))))) + y2(t)*log(exp(s
+      um(n, data2(t,n)*BETA(n)))/
+  45                         (exp(sum(n, data1(t,n)*BETA(n))) + exp(sum(n, data2
+      (t,n)*BETA(n))))));
+  46   
+  47  model logit  /obj/;
+  48   
+  49  solve logit maximizing LOGLIK using nlp;
+  50   
+  51   
+GAMS 27.3.0  r58c491d Released Jul  4, 2019 WEX-WEI x86 64bit/MS Windows 07/16/19 15:03:50 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  D:\salilsharma\My Documents\gamsdir\pr
+                                          ojdir\working_logit.gms
+     2        2 CALL           1       2  gdxxrw.exe test.xlsx par=data1 rng=she
+                                          et2!A1:E1672 par=data2 rng=sheet2!F1:J
+                                          1672 par=choice rng=sheet2!K1:L1672
+     3       12 GDXIN          1      12  D:\salilsharma\My Documents\gamsdir\pr
+                                          ojdir\test.gdx
+
+
+COMPILATION TIME     =        1.014 SECONDS      4 MB  27.3.0 r58c491d WEX-WEI
+GAMS 27.3.0  r58c491d Released Jul  4, 2019 WEX-WEI x86 64bit/MS Windows 07/16/19 15:03:50 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE logit Using NLP From line 49
+
+
+---- obj  =E=  Objective for a unrestricted model
+
+obj..  (1193.89)*BETA(TT) + (1361.9077)*BETA(TTR) + (28)*BETA(LC)
+     
+      + (2058.75)*BETA(TD) + LOGLIK =E= 0 ;
+     
+      (LHS = 1158.24893871562, INFES = 1158.24893871562 ****)
+     
+GAMS 27.3.0  r58c491d Released Jul  4, 2019 WEX-WEI x86 64bit/MS Windows 07/16/19 15:03:50 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE logit Using NLP From line 49
+
+
+---- BETA  Coefficients to be estimated
+
+BETA(TT)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+    (1193.89)   obj
+
+BETA(TTR)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+    (1361.9077) obj
+
+BETA(LC)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+      (28)      obj
+
+REMAINING ENTRY SKIPPED
+
+---- LOGLIK  Loglikelihood
+
+LOGLIK
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       obj
+
+GAMS 27.3.0  r58c491d Released Jul  4, 2019 WEX-WEI x86 64bit/MS Windows 07/16/19 15:03:50 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE logit Using NLP From line 49
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS           1     SINGLE EQUATIONS            1
+BLOCKS OF VARIABLES           2     SINGLE VARIABLES            5
+NON ZERO ELEMENTS             5     NON LINEAR N-Z              4
+DERIVATIVE POOL              20     CONSTANT POOL           1,802
+CODE LENGTH              42,842
+
+
+GENERATION TIME      =        0.016 SECONDS      5 MB  27.3.0 r58c491d WEX-WEI
+
+
+EXECUTION TIME       =        0.032 SECONDS      5 MB  27.3.0 r58c491d WEX-WEI
+GAMS 27.3.0  r58c491d Released Jul  4, 2019 WEX-WEI x86 64bit/MS Windows 07/16/19 15:03:50 Page 6
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE logit Using NLP From line 49
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   logit               OBJECTIVE  LOGLIK
+     TYPE    NLP                 DIRECTION  MAXIMIZE
+     SOLVER  CONOPT              FROM LINE  49
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      2 Locally Optimal           
+**** OBJECTIVE VALUE             -868.1427
+
+ RESOURCE USAGE, LIMIT          0.031      1000.000
+ ITERATION COUNT, LIMIT        10    2000000000
+ EVALUATION ERRORS              0             0
+CONOPT 3         27.3.0 r58c491d Released Jul 04, 2019 WEI x86 64bit/MS Window
+ 
+ 
+    C O N O P T 3   version 3.17K
+    Copyright (C)   ARKI Consulting and Development A/S
+                    Bagsvaerdvej 246 A
+                    DK-2880 Bagsvaerd, Denmark
+ 
+ 
+    The model has 5 variables and 1 constraints
+    with 5 Jacobian elements, 4 of which are nonlinear.
+    The Hessian of the Lagrangian has 4 elements on the diagonal,
+    6 elements below the diagonal, and 4 nonlinear variables.
+ 
+                   Pre-triangular equations:   0
+                   Post-triangular equations:  1
+ 
+ 
+ ** Optimal solution. Reduced gradient less than tolerance.
+ 
+ 
+ CONOPT time Total                            0.020 seconds
+   of which: Function evaluations             0.004 = 20.0%
+             1st Derivative evaluations       0.005 = 25.0%
+             2nd Derivative evaluations       0.004 = 20.0%
+             Directional 2nd Derivative       0.004 = 20.0%
+ 
+
+                       LOWER     LEVEL     UPPER    MARGINAL
+
+---- EQU obj             .         .         .        1.000      
+
+  obj  Objective for a unrestricted model
+
+---- VAR BETA  Coefficients to be estimated
+
+       LOWER     LEVEL     UPPER    MARGINAL
+
+TT      -INF     -0.086     +INF       EPS       
+TTR     -INF      0.002     +INF       EPS       
+LC      -INF     -0.226     +INF       EPS       
+TD      -INF     -0.262     +INF       EPS       
+
+                       LOWER     LEVEL     UPPER    MARGINAL
+
+---- VAR LOGLIK         -INF   -868.143     +INF       .         
+
+  LOGLIK  Loglikelihood
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+                             0     ERRORS
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  27.3.0 r58c491d WEX-WEI
+
+
+USER: GAMS Development Corporation, USA              G871201/0000CA-ANY
+      Free Demo, +1 202-342-0180, support@gams.com, www.gams.com DC0000
+
+
+**** FILE SUMMARY
+
+Input      D:\salilsharma\My Documents\gamsdir\projdir\working_logit.gms
+Output     D:\salilsharma\My Documents\gamsdir\projdir\working_logit.lst
